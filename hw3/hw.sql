@@ -2,13 +2,13 @@ use vk;
 
 drop table if exists wallet;
 create table wallet(
-	wallet_id bigint unsigned not null,
+	wallet_id bigint unsigned not null primary key,
 	wallet_holder_name varchar(100),
 	amount decimal(4,2),
 	refueled_at datetime default current_timestamp on update current_timestamp,
-	foreign key (wallet_holder_name) references users(firstname),
 	foreign key (wallet_id) references users(id),
-	index user_wallet(wallet_id, wallet_holder_name)
+	index user_wallet(wallet_id, wallet_holder_name),
+	index (amount)
 ) comment 'виртуальный кошелек пользователя';
 
 drop table if exists subscriptions;
@@ -19,8 +19,7 @@ create table subscriptions(
 	subscrited_start datetime default current_timestamp,
 	subscription_end datetime,
 	status enum ('expired', 'active'),
-	foreign key (price) references wallet(ammount),
-	foreign key (id) references users(id),
+	foreign key (price) references wallet(amount),
 	index (name)
 ) comment 'подписки';
 
@@ -31,6 +30,6 @@ create table user_notes(
 	body text,
 	created_at datetime default current_timestamp,
 	updated_at datetime default current_timestamp on update current_timestamp,
-	foreign key (note_id) references users(id)
+	foreign key (note_id) references users(id),
 	index (title)
 ) comment 'заметки пользователя';
