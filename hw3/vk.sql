@@ -15,26 +15,26 @@ create table users(
 ) comment 'пользователи';
 
 -- 1 to 1 
-drop table if exists ´profiles´;
-create table ´profiles´( 
+drop table if exists profiles;
+create table profiles( 
 	user_id bigint unsigned not null primary key,
 	gender char(1),
 	hometown varchar(100),
 	created_at datetime default now()
 ) ;
 -- с помощью alter table можно добавить внешний ключ profiles к  например:
-alter table ´profiles´ add constraint fk_profiles_user_id
+alter table profiles add constraint fk_profiles_user_id
 foreign key (user_id) references users(id) 
 on update cascade
 on delete restrict;
 -- добавим колонку birthday
-alter table ´profiles´ add column birthday date;
+alter table profiles add column birthday date;
 -- потом переименовали ради теста
-alter table ´profiles´ rename column birthday to date_of_birth;
+alter table profiles rename column birthday to date_of_birth;
 -- можно так же и удалить колонку
-alter table ´profiles´ drop column date_of_birth;
+alter table profiles drop column date_of_birth;
 -- возвращаем все как было (можно было просто закоментить, но как то пох): 
-alter table ´profiles´ add column birthday date;
+alter table profiles add column birthday date;
 
 -- 1 to M
 /* напр. сообщения, индивидуальные сообщения для начала:
