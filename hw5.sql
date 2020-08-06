@@ -18,25 +18,43 @@ alter table users modify updated_at datetime;
  отсортировать записи таким образом, чтобы они выводились в порядке увеличения значения value.
  Однако, нулевые запасы должны выводиться в конце, после всех записей. */
 select value from storehouses_products order by value=0, value;
+-- альтернативный вариант:
+select id, value, if(value > 0, 0, 1) as sort from storehouses_products order by sort, value ;
 
 /* (по желанию) Из таблицы users необходимо извлечь пользователей, родившихся в августе и мае. 
  Месяцы заданы в виде списка английских названий ('may', 'august') */
 select * from users where monthname(birthday_at) in ('august', 'may') ;
+-- альтернатива:
+select name from users where date_format(birthday_at, '%M') in ('may', 'august');
 
 /* (по желанию) Из таблицы catalogs извлекаются записи при помощи запроса. SELECT * FROM 
  catalogs WHERE id IN (5, 1, 2); Отсортируйте записи в порядке, заданном в списке IN. */
 SELECT * FROM catalogs WHERE id IN (5, 1, 2) order by field (id, 5, 1, 2);
+-- альтернатива
+select id, name, field(id, 5,1,2) as pos from catalogs where id in (5,1,2);
+select * from catalogs where id in (5,1,2) order by field(id, 5, 1, 2);
 
 -- Практическое задание теме “Агрегация данных”
 /* 1 Подсчитайте средний возраст пользователей в таблице users */
+use shop;
 select count(name) as 'group', group_concat(name) as 'names', year(now())-year(birthday_at) as age from users group by age;
 select round(avg(year(now()) - year(birthday_at))) as 'users-average-age' from users;
+-- альтернатива
+select avg(timestampdiff(year, birthday_at, now())) as 'users-average-age' from users;
 
 /* 2 Подсчитайте количество дней рождения, которые приходятся на каждый из дней недели.
  Следует учесть, что необходимы дни недели текущего года, а не года рождения. */
 select count(name) as количество, group_concat(name, ' ', year(now())-year(birthday_at) +1) as 'имя + возраст', 
 substring(date_format(concat(year(now()),'.',date_format(birthday_at, '%m.%d.')), '%W'), 1,3) as день 
 from users group by день;
+-- альтернатива
+select 
+date_format(date(concat_ws('-', year(now()), month(birthday_at), day(birthday_at))), '%W') as day, 
+count(*) as total 
+from users 
+group by day 
+order by total desc;
 
--- 3 (по желанию) Подсчитайте произведение чисел в столбце таблицы
-
+-- 3 (по желанию) Подсчитайте произведение чисел в столбце таблицы value(1-5) => 120
+-- id (1-5) catalogs
+select round(exp(sum(ln(id)))) as произведение from catalogs;
